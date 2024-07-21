@@ -20,10 +20,10 @@ def get_data(manager, sku_input, date, API_WB):
         param_request = {'dateFrom': date, "flag": "1"}
         response_incomes = requests.get(url_incomes, headers=headers, params=param_request).json()
 
+        print(response_incomes)
         df = pd.DataFrame(response_incomes)
         df.set_index('srid')
         sku_df = df[df["nmId"] == int(sku)]
-
 
         # Выручка магазина по артикулу, р
         day_sum = sku_df["priceWithDisc"].sum()
@@ -72,14 +72,15 @@ def get_data(manager, sku_input, date, API_WB):
     try:
         for country in countries:
             if "nmId" in sku_df.columns:
-                info = sku_df[sku_df["countryName"] == country.lower()]["finishedPrice"].count()
-                okrugi_data.append((country, int(info)))
+                info = sku_df[sku_df["countryName"] == country]
+                okrugi_data.append((country, len(info)))
             else:
-                okrugi_data.append((country, 0))
+                print(okrugi_data)
         for okrug in okrugi:
             if "nmId" in sku_df.columns:
-                info = sku_df[sku_df["oblastOkrugName"] == okrug.lower()]["finishedPrice"].count()
-                okrugi_data.append((okrug, int(info)))
+                info = sku_df[sku_df["oblastOkrugName"] == okrug]["finishedPrice"]
+                print(info)
+                print(okrugi_data)
             else:
                 okrugi_data.append((okrug, 0))
         for okrug in okrugi_data:
@@ -222,9 +223,8 @@ def get_data(manager, sku_input, date, API_WB):
                 overall_stats['orders'] += advert["orders"]
                 overall_stats['sum'] += advert["sum"]
                 overall_stats['orders_sum'] += advert['sum_price']
-            except BaseException as e :
+            except BaseException as e:
                 print(f'Error {e}')
-
 
     resulting_dict['Показы (реклама)'] = int(overall_stats['views'] + overall_stats['views'])
     resulting_dict['Перешли в карточку (реклама)'] = int(overall_stats['clicks'] + overall_stats['clicks'])
@@ -235,13 +235,12 @@ def get_data(manager, sku_input, date, API_WB):
     resulting_dict['Конверсия в заказ (реклама)'] = str(
         correct_division(overall_stats['orders'], overall_stats['buckets']) * 100) + "%"
     resulting_dict['CR (реклама)'] = str(correct_division(overall_stats['buckets'], overall_stats['clicks']) * 100
-                                   * correct_division(overall_stats['orders'], overall_stats['buckets'])) + "%"
+                                         * correct_division(overall_stats['orders'], overall_stats['buckets'])) + "%"
     resulting_dict['CPC'] = correct_division(overall_stats['sum'], overall_stats['clicks'])
     resulting_dict['CTR'] = str(correct_division(overall_stats['clicks'], overall_stats['views']) * 100) + "%"
     resulting_dict['Бюджет Факт'] = int(overall_stats['sum'])
     resulting_dict['Стоимость корзины'] = correct_division(overall_stats['sum'], overall_stats['buckets'])
     resulting_dict['Стоимость заказа'] = correct_division(overall_stats['sum'], overall_stats['orders'])
-
 
     resulting_dict['Просмотры АРК'] = int(ark_stats['views'])
     resulting_dict['Клики АРК'] = int(ark_stats['clicks'])
@@ -280,7 +279,7 @@ def get_data(manager, sku_input, date, API_WB):
     # except BaseException:
     #     print(f"Error in WB {sku_input} {date}")
 
-    #first
+    # first
     sku = sku_input["skuName"]
 
     values = get_planned_values(manager, sku)
@@ -329,17 +328,17 @@ def main(date):
 
                 RETRY_COUNT = 0
                 while RETRY_COUNT < 2:
-                    # try:
+                    try:
                         data = get_data(manager, managers_data[manager][sku], str(date), WB_API)
                         adding_data_daily(manager, managers_data[manager][sku]["skuName"], data, str(date))
                         fill_summary_table(manager, managers_data[manager][sku], data, str(date))
                         print(f"DONE on {manager} {sku} {date}")
                         time.sleep(240)
                         break
-                    # except BaseException:
-                    #     print(f"ERROR on {manager} {sku} {date}")
-                    #     RETRY_COUNT += 1
-                    #     time.sleep(240)
+                    except BaseException:
+                        print(f"ERROR on {manager} {sku} {date}")
+                        RETRY_COUNT += 1
+                        time.sleep(240)
 
             # iter_date = dt.date(2024, 2, 1)
             # end_date = dt.date(2024, 3, 29)
@@ -376,7 +375,6 @@ if __name__ == "__main__":
         main(date - dt.timedelta(2))
         time.sleep(360)
         main(date)
-
 
     # dates = [dt.date.today() - dt.timedelta(i) for i in range(5, -1, -1)]
     # for date in dates:
