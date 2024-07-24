@@ -75,12 +75,11 @@ def get_data(manager, sku_input, date, API_WB):
                 info = sku_df[sku_df["countryName"] == country]
                 okrugi_data.append((country, len(info)))
             else:
-                print(okrugi_data)
+                okrugi_data.append((country, 0))
         for okrug in okrugi:
             if "nmId" in sku_df.columns:
-                info = sku_df[sku_df["oblastOkrugName"] == okrug]["finishedPrice"]
-                print(info)
-                print(okrugi_data)
+                info = sku_df[sku_df["oblastOkrugName"] == okrug]
+                okrugi_data.append((okrug, len(info)))
             else:
                 okrugi_data.append((okrug, 0))
         for okrug in okrugi_data:
@@ -216,15 +215,15 @@ def get_data(manager, sku_input, date, API_WB):
                 search_stats['sum'] += advert["sum"]
                 search_stats['orders_sum'] += advert['sum_price']
 
-            try:
-                overall_stats['views'] += advert["views"]
-                overall_stats['clicks'] += advert["clicks"]
-                overall_stats['buckets'] += advert["atbs"]
-                overall_stats['orders'] += advert["orders"]
-                overall_stats['sum'] += advert["sum"]
-                overall_stats['orders_sum'] += advert['sum_price']
-            except BaseException as e:
-                print(f'Error {e}')
+        try:
+            overall_stats['views'] = ark_stats['views'] + search_stats['views']
+            overall_stats['clicks'] = ark_stats['views'] + search_stats['views']
+            overall_stats['buckets'] = ark_stats['views'] + search_stats['views']
+            overall_stats['orders'] = ark_stats['views'] + search_stats['views']
+            overall_stats['sum'] = ark_stats['views'] + search_stats['views']
+            overall_stats['orders_sum'] = ark_stats['views'] + search_stats['views']
+        except BaseException as e:
+            print(f'Error {e}')
 
     resulting_dict['Показы (реклама)'] = int(overall_stats['views'] + overall_stats['views'])
     resulting_dict['Перешли в карточку (реклама)'] = int(overall_stats['clicks'] + overall_stats['clicks'])
