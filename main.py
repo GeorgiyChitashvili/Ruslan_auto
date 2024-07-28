@@ -332,12 +332,12 @@ def main(date):
                         adding_data_daily(manager, managers_data[manager][sku]["skuName"], data, str(date))
                         fill_summary_table(manager, managers_data[manager][sku], data, str(date))
                         print(f"DONE on {manager} {sku} {date}")
-                        time.sleep(240)
+                        time.sleep(180)
                         break
                     except BaseException:
                         print(f"ERROR on {manager} {sku} {date}")
                         RETRY_COUNT += 1
-                        time.sleep(240)
+                        time.sleep(180)
 
             # iter_date = dt.date(2024, 2, 1)
             # end_date = dt.date(2024, 3, 29)
